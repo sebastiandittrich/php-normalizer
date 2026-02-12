@@ -1,0 +1,28 @@
+{
+    "name": "sebastiandittrich/php-normalizer",
+    "version": "0.0.1",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SebastianDittrich\\Normalizer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sebastian Dittrich",
+            "email": "sebastian@dittrich.dev"
+        }
+    ],
+    "require": {
+        "symfony/property-info": "^7.2"
+    },
+    "require-dev": {
+        "pestphp/pest": "^4.3"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
