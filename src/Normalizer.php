@@ -199,6 +199,7 @@ class Normalizer
             $possibleTypes = array_filter($possibleTypes, fn(Type $type) => match (true) {
                 $type instanceof ClassType => Discriminator::forClass($type->className)?->check($data),
                 $type instanceof InterfaceType => array_any($this->getImplementations($type), fn($implementation) => Discriminator::forClass($implementation)?->check($data)),
+
                 default => true,
             });
         }
@@ -246,6 +247,6 @@ class Normalizer
             }
         }
 
-        throw new NormalizerException('Cannot denormalize data, no matching implementation found for interface ' . $reflectionClass->getName() . ' with data ' . var_export($data, true));
+        throw new NormalizerException('Cannot denormalize data, no matching implementation found for interface ' . $type->humanName() . ' with data ' . var_export($data, true));
     }
 }
