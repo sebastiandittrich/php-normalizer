@@ -198,6 +198,7 @@ class Normalizer
         if (count($possibleTypes) > 1) {
             $possibleTypes = array_filter($possibleTypes, fn(Type $type) => match (true) {
                 $type instanceof ClassType => Discriminator::forClass($type->className)?->check($data),
+                $type instanceof InterfaceType => array_any($this->getImplementations($type), fn($implementation) => Discriminator::forClass($implementation)?->check($data)),
                 default => true,
             });
         }
@@ -218,10 +219,10 @@ class Normalizer
         return $this->denormalizeType($data, $type);
     }
 
-    public function denormalizeInterface(mixed $data, InterfaceType $type)
+    private function getImplementations(InterfaceType $interface)
     {
-        $reflectionClass = new ReflectionClass($type->interfaceName);
-        $implementations = array_reduce(
+        $reflectionClass = new ReflectionClass($interface->interfaceName);
+        return array_reduce(
             $reflectionClass->getAttributes(InterfaceMap::class),
             fn($carry, $attribute) => [
                 ...$carry,
@@ -229,6 +230,11 @@ class Normalizer
             ],
             []
         );
+    }
+
+    public function denormalizeInterface(mixed $data, InterfaceType $type)
+    {
+        $implementations = $this->getImplementations($type);
 
         foreach ($implementations as $implementation) {
             $discriminator = Discriminator::forClass($implementation);

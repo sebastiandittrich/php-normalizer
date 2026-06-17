@@ -33,6 +33,24 @@ class Test3 implements TestInterface
 ])]
 interface TestInterface {}
 
+#[InterfaceMap([
+    Test5::class,
+    Test6::class,
+])]
+interface TestInterface2 {}
+
+#[Discriminator('test5')]
+class Test5
+{
+    public function __construct(public string $message) {}
+}
+
+#[Discriminator('test6')]
+class Test6
+{
+    public function __construct(public string $message) {}
+}
+
 class Test4
 {
     public function __construct(public TestInterface $test) {}
@@ -249,5 +267,31 @@ test('nullable interface', function () {
     );
 
     expect($denormalized)->toBeInstanceOf(Test2::class);
+    expect($denormalized->message)->toBe('hello');
+});
+
+test('multiple interfaces', function () {
+    $denormalized = new Normalizer()->denormalizeUnion(
+        data: ['type' => 'test2', 'message' => 'hello'],
+        unionType: new UnionType([
+            new InterfaceType(TestInterface::class),
+            new InterfaceType(TestInterface2::class),
+        ])
+    );
+
+    expect($denormalized)->toBeInstanceOf(Test2::class);
+    expect($denormalized->message)->toBe('hello');
+});
+
+test('default implementation', function () {
+    $denormalized = new Normalizer()->denormalizeUnion(
+        data: ['type' => 'test5', 'message' => 'hello'],
+        unionType: new UnionType([
+            new InterfaceType(TestInterface::class),
+            new InterfaceType(TestInterface2::class),
+        ])
+    );
+
+    expect($denormalized)->toBeInstanceOf(Test5::class);
     expect($denormalized->message)->toBe('hello');
 });
