@@ -12,6 +12,7 @@ class Discriminator
     public function __construct(
         public string $value,
         public string $fieldname = 'type',
+        public array $legacyFieldnames = [],
     ) {}
 
     public function fill(array &$data): void
@@ -21,10 +22,17 @@ class Discriminator
 
     public function check(array &$data): bool
     {
-        if (! array_key_exists($this->fieldname, $data)) {
-            return false;
+        $fieldnames = [
+            $this->fieldname,
+            ...$this->legacyFieldnames
+        ];
+
+        foreach ($fieldnames as $fieldname) {
+            if (array_key_exists($fieldname, $data)) {
+                return $data[$fieldname] === $this->value;
+            }
         }
 
-        return $data[$this->fieldname] === $this->value;
+        return false;
     }
 }

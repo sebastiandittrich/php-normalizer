@@ -45,7 +45,7 @@ class Test5
     public function __construct(public string $message) {}
 }
 
-#[Discriminator('test6')]
+#[Discriminator('test6', '@type', ['type'])]
 class Test6
 {
     public function __construct(public string $message) {}
@@ -294,4 +294,28 @@ test('default implementation', function () {
 
     expect($denormalized)->toBeInstanceOf(Test5::class);
     expect($denormalized->message)->toBe('hello');
+});
+
+test('it can use custom field name for discriminator', function () {
+    $denormalized = new Normalizer()->denormalize(
+        data: ['@type' => 'test6', 'message' => 'hello'],
+        type: new InterfaceType(TestInterface2::class)
+    );
+
+    expect($denormalized)->toBeInstanceOf(Test6::class);
+    expect($denormalized->message)->toBe('hello');
+
+    $denormalized = new Normalizer()->denormalize(
+        data: ['type' => 'test6', 'message' => 'hello'],
+        type: new InterfaceType(TestInterface2::class)
+    );
+
+    expect($denormalized)->toBeInstanceOf(Test6::class);
+    expect($denormalized->message)->toBe('hello');
+
+    $normalizer = new Normalizer()->normalize(new Test6('hello'));
+
+    expect($normalizer)->toBeArray();
+    expect($normalizer['@type'])->toBe('test6');
+    expect($normalizer['message'])->toBe('hello');
 });

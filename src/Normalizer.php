@@ -242,7 +242,7 @@ class Normalizer
             if (! $discriminator) {
                 throw new NormalizerException('Cannot denormalize data, missing discriminator attribute for implementation ' . $implementation);
             }
-            if (($data[$discriminator->fieldname] ?? false) === $discriminator->value) {
+            if ($discriminator->check($data)) {
                 return $this->denormalize($data, $implementation);
             }
         }
